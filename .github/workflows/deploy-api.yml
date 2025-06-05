@@ -3,7 +3,7 @@ name: Deploy API to Azure Functions
 on:
   push:
     branches:
-      - main # ← main に push されたときにデプロイ
+      - master
 
 jobs:
   build-and-deploy:
