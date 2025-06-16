@@ -1,0 +1,202 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: JavaScript/TypeScriptファイル向けの基本的な命名規則とスタイルガイド
+globs: "**/*.{js,ts,jsx,tsx}"
+---
+- 変数名とプロパティ名はキャメルケース（`camelCase`）を使用してください。
+- 関数名やメソッド名は、処理内容を表す動詞から始めてください（例: `getUserData`, `calculateTotal`）。
+- 定数は大文字スネークケース（`UPPER_SNAKE_CASE`）で定義してください。
+
+- 不要な `console.log` は残さないようにしてください。
+
+## 🔧 基本命名規則
+- 変数名とプロパティ名はキャメルケース（`camelCase`）を使用してください。
+- 関数名やメソッド名は、処理内容を表す動詞から始めてください（例: `getUserData`, `calculateTotal`）。
+- 定数は大文字スネークケース（`UPPER_SNAKE_CASE`）で定義してください。
+- 不要な `console.log` は残さないようにしてください。
+
+## ⚛️ React固有のお作法
+
+### コンポーネント設計
+- **関数コンポーネント**を使用し、クラスコンポーネントは避けてください。
+- **単一責任の原則**：1つのコンポーネントは1つの責任のみ持つようにしてください。
+- **Props型定義**：必ずTypeScriptでProps型を定義してください。
+```typescript
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({ children, onClick, disabled = false }) => {
+  return <button onClick={onClick} disabled={disabled}>{children}</button>;
+};
+```
+
+### Hooks使用規則
+- **useEffect**：依存配列を必ず指定し、無限ループを避けてください。
+- **useCallback**：子コンポーネントに渡す関数は`useCallback`でメモ化してください。
+- **useMemo**：重い計算処理は`useMemo`でメモ化してください。
+- **カスタムフック**：ロジックの再利用には`use`で始まるカスタムフックを作成してください。
+
+### 状態管理
+- **局所的な状態**：`useState`を使用してください。
+- **複雑な状態**：`useReducer`を検討してください。
+- **グローバル状態**：必要最小限に留め、Context APIを活用してください。
+
+### イベントハンドリング
+- イベントハンドラー名は`handle`で始めてください（例: `handleClick`, `handleSubmit`）。
+- `useCallback`でラップして再レンダリングを最適化してください。
+
+### 条件分岐とレンダリング
+- **条件付きレンダリング**：三項演算子または論理演算子を使用してください。
+```typescript
+// Good
+{isLoading ? <Spinner /> : <Content />}
+{error && <ErrorMessage error={error} />}
+
+// Avoid
+{isLoading === true ? <Spinner /> : <Content />}
+```
+
+### ファイル構成
+- **1ファイル1コンポーネント**の原則を守ってください。
+- **index.ts**でエクスポートをまとめてください。
+- **型定義**は同じファイル内またはtypes/フォルダに配置してください。
+
+---
+description: C#/.NETファイル向けのコーディング規約とベストプラクティス
+globs: "**/*.cs"
+---
+## 🔧 C#基本規約
+
+### 命名規則
+- **クラス・メソッド・プロパティ**：PascalCase（例: `MusicService`, `GetSongAsync`）
+- **変数・フィールド**：camelCase（例: `songTitle`, `playlistItems`）
+- **プライベートフィールド**：アンダースコア接頭辞（例: `_logger`, `_httpClient`）
+- **定数**：PascalCase（例: `DefaultTimeout`, `MaxRetryCount`）
+- **インターフェース**：I接頭辞（例: `IMusicService`, `IRepository`）
+
+### Azure Functions固有規約
+- **関数名**：`[FunctionName("FunctionName")]`属性を使用し、HTTPルートと一致させてください。
+- **非同期処理**：必ず`async Task<IActionResult>`を使用してください。
+- **ログ出力**：`ILogger`を活用し、適切なログレベルを設定してください。
+```csharp
+[FunctionName("GetSongs")]
+public static async Task<IActionResult> GetSongs(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "songs")] HttpRequest req,
+    ILogger log)
+{
+    log.LogInformation("Getting songs list");
+    
+    try
+    {
+        // ビジネスロジック
+        var songs = await GetSongsFromDatabase();
+        return new OkObjectResult(songs);
+    }
+    catch (Exception ex)
+    {
+        log.LogError(ex, "Error occurred while getting songs");
+        return new StatusCodeResult(500);
+    }
+}
+```
+
+### エラーハンドリング
+- **Try-Catch**：必ず適切な例外処理を実装してください。
+- **ログ出力**：例外発生時は必ずログに記録してください。
+- **ステータスコード**：HTTPステータスコードを適切に返却してください。
+- **例外の再スロー**：必要に応じて`throw;`で例外を再スローしてください。
+
+### 非同期プログラミング
+- **async/await**：非同期メソッドには必ず`async/await`を使用してください。
+- **ConfigureAwait**：ライブラリコードでは`ConfigureAwait(false)`を使用してください。
+- **非同期メソッド名**：Asyncサフィックスを付けてください（例: `GetDataAsync`）。
+
+### データ検証
+- **入力値検証**：全てのパブリックメソッドで入力値を検証してください。
+- **Null Check**：nullable reference typesを活用してnullチェックを行ってください。
+```csharp
+public async Task<IActionResult> CreateSong(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "songs")] HttpRequest req,
+    ILogger log)
+{
+    if (req.Body == null)
+    {
+        return new BadRequestObjectResult("Request body is required");
+    }
+    
+    // 処理続行
+}
+```
+
+### パフォーマンス最適化
+- **string操作**：複数回の文字列結合には`StringBuilder`を使用してください。
+- **LINQ**：適切にLINQを使用し、不要なenumerationを避けてください。
+- **リソース管理**：`using`文でリソースを適切に解放してください。
+
+### JSON処理
+- **Newtonsoft.Json**：プロジェクトで統一してNewtonsoft.Jsonを使用してください。
+- **エンコーディング**：UTF-8エンコーディングを明示的に指定してください。
+- **シリアライズ設定**：プロジェクト全体で一貫したシリアライズ設定を使用してください。
+
+---
+description: APIレスポンス・HTTP通信に関する規約
+globs: "**/*.{cs,ts,tsx}"
+---
+## 🌐 API設計規約
+
+### HTTPステータスコード
+- **200 OK**：取得成功
+- **201 Created**：作成成功
+- **400 Bad Request**：リクエストエラー
+- **404 Not Found**：リソースが見つからない
+- **500 Internal Server Error**：サーバーエラー
+
+### レスポンス形式
+- **成功レスポンス**：データを直接返却またはラップして返却
+- **エラーレスポンス**：エラーメッセージとエラーコードを含める
+```typescript
+// 成功レスポンス
+interface ApiResponse<T> {
+  data: T;
+  success: true;
+}
+
+// エラーレスポンス
+interface ErrorResponse {
+  error: string;
+  code: string;
+  success: false;
+}
+```
+
+### CORS設定
+- 開発環境では`*`を許可
+- 本番環境では特定のオリジンのみ許可
+- 必要なHTTPメソッドとヘッダーを明示的に設定
+
+---
+description: テスト・品質管理に関する規約
+globs: "**/*.{test,spec}.{ts,tsx,cs}"
+---
+## 🧪 テスト規約
+
+### テスト命名
+- **TypeScript**：`describe`でテスト対象を説明、`it`で具体的なテストケースを記述
+- **C#**：`[Fact]`または`[Theory]`を使用し、メソッド名で動作を説明
+
+### テスト構造
+- **AAA パターン**：Arrange（準備）、Act（実行）、Assert（検証）
+- **Given-When-Then**：Given（前提条件）、When（実行条件）、Then（期待結果）
+
+### モック・スタブ
+- 外部依存は必ずモック化してください
+
+
+- テストは独立して実行できるようにしてください
